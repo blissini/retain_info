@@ -18,6 +18,9 @@ parse_asconfig () {
   fi
 }
 
+exists() {
+    command -v "$1" >/dev/null 2>&1
+}
 
 initialize () {
 
@@ -62,6 +65,15 @@ initialize () {
     ;;
 
     oracle.jdbc.OracleDriver )
+
+      if exists sqlplus64; then
+        echo 'SQLplus exists.'
+      else
+        echo 'SQLplus command line client not available.'
+        echo 'You can download it here: http://www.oracle.com/technetwork/topics/linuxx86-64soft-092277.html '
+        exit 1
+      fi
+
       db_host=$(parse_asconfig '<DBURL>' | cut -d@ -f 2 )
       db_name=retain
       db_user=$(parse_asconfig '<DBUser>')
