@@ -1,6 +1,10 @@
 #!/bin/bash
 
 
+# get a timestamp
+start=$(date +%s)
+
+
 # message strings
 msg_config_not_found="Config file not found. Aborting."
 msg_db_not_supported="Database driver not supported by this script. Aborting."
@@ -252,8 +256,13 @@ echo
 # echo "$configured_jobs"
 echo
 
+end=$(date +%s)
+runtime=$(python -c "print '%u:%02u' % ((${end} - ${start})/60, (${end} - ${start})%60)")
 
+#runtime=$((end-start))
 
+echo -e "\033[0;32mrun time \033[0m"
+echo "$runtime (min:sec)"
 
 
 exit 0
