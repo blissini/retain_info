@@ -247,10 +247,10 @@ echo "listing configured jobs..."
 configured_jobs=$($sql_command <<< $query_configured_jobs)
 echo "Done."
 echo "getting db schema version..."
-db_schema_version=$($sql_command <<< $query_db_schema_version)
+db_schema_version=$($sql_command <<< $query_db_schema_version | grep -o '[0-9]*')
 echo "Done."
 echo "getting db mig version..."
-db_mig_version=$($sql_command <<< $query_db_mig_version)
+db_mig_version=$($sql_command <<< $query_db_mig_version | grep -o '[0-9]*')
 echo "Done."
 
 echo -e "\033[0;32mDB schema version \033[0m"
