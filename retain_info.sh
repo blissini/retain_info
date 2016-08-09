@@ -22,6 +22,12 @@ parse_asconfig () {
   fi
 }
 
+parse_asconfig_duplicate_nodes () {
+  if [[  $asconfig_exists = true  ]]; then
+    grep -A 1 $1 $asconfig | tail -n1 | sed -e 's/<[^>]*>//g' | sed 's/ *//g'
+  fi
+}
+
 exists() {
     command -v "$1" >/dev/null 2>&1
 }
@@ -94,6 +100,19 @@ initialize () {
       echo $msg_db_not_supported 1>&2
       exit 1
   esac
+
+  index_host=$(parse_asconfig '<hostName>')
+  index_port=$(parse_asconfig '<portNumber>')
+  index_path=$(parse_asconfig '<path>')
+  index_user=$(parse_asconfig_duplicate_nodes 'hpiUsername')
+  index_pass=$(parse_asconfig_duplicate_nodes 'hpiPassword')
+  hpi_json=$(curl --user ${index_user}:${index_pass} --insecure "https://${index_host}:${index_port}/${index_path}/admin/cores?action=STATUS&wt=json&indent=on&omitHeader=on")
+  index_num_docs=$(echo "$hpi_json" | grep '"numDocs"'| cut -f 2 -d: | grep -o '[0-9]*')
+  index_max_docs=$(echo "$hpi_json" | grep '"maxDoc"'| cut -f 2 -d: | grep -o '[0-9]*')
+  index_del_docs=$(echo "$hpi_json" | grep '"deletedDocs"'| cut -f 2 -d: | grep -o '[0-9]*')
+  index_version=$(echo "$hpi_json" | grep '"version"'| cut -f 2 -d: | grep -o '[0-9]*')
+  index_segment_count=$(echo "$hpi_json" | grep '"segmentCount"'| cut -f 2 -d: | grep -o '[0-9]*')
+
 }
 
 
@@ -252,10 +271,13 @@ echo
 echo -e "\033[0;32mindex status \033[0m"
 echo "$index_status"
 echo
-# echo -e "\033[0;32mconfigured jobs \033[0m"
-# echo "$configured_jobs"
+echo -e "\033[0;32mindex stats \033[0m"
+echo "version: $index_version"
+echo "numDocs: $index_num_docs"
+echo "maxDoc: $index_max_docs"
+echo "deletedDocs: $index_del_docs"
+echo "segmentCount: $index_segment_count"
 echo
-
 end=$(date +%s)
 runtime=$(python -c "print '%u:%02u' % ((${end} - ${start})/60, (${end} - ${start})%60)")
 
@@ -263,6 +285,7 @@ runtime=$(python -c "print '%u:%02u' % ((${end} - ${start})/60, (${end} - ${star
 
 echo -e "\033[0;32mrun time \033[0m"
 echo "$runtime (min:sec)"
+
 
 
 exit 0
