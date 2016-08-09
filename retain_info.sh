@@ -271,7 +271,7 @@ echo
 echo -e "\033[0;32mindex status \033[0m"
 echo "$index_status"
 echo
-echo -e "\033[0;32mindex stats \033[0m"
+echo -e "\033[0;32msolr stats \033[0m"
 echo "version: $index_version"
 echo "numDocs: $index_num_docs"
 echo "maxDoc: $index_max_docs"
